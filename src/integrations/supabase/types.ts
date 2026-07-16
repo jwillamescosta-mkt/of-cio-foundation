@@ -14,16 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          address_city: string | null
+          address_complement: string | null
+          address_district: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          avatar_url: string | null
+          bank_account: string | null
+          bank_account_type:
+            | Database["public"]["Enums"]["bank_account_type"]
+            | null
+          bank_agency: string | null
+          bank_name: string | null
+          created_at: string
+          display_name: string | null
+          document_number: string | null
+          document_type: Database["public"]["Enums"]["document_type"] | null
+          email: string | null
+          id: string
+          legal_name: string | null
+          logo_url: string | null
+          pix_key: string | null
+          pix_key_type: Database["public"]["Enums"]["pix_key_type"] | null
+          signature_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          avatar_url?: string | null
+          bank_account?: string | null
+          bank_account_type?:
+            | Database["public"]["Enums"]["bank_account_type"]
+            | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          document_number?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          email?: string | null
+          id: string
+          legal_name?: string | null
+          logo_url?: string | null
+          pix_key?: string | null
+          pix_key_type?: Database["public"]["Enums"]["pix_key_type"] | null
+          signature_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          avatar_url?: string | null
+          bank_account?: string | null
+          bank_account_type?:
+            | Database["public"]["Enums"]["bank_account_type"]
+            | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          document_number?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          email?: string | null
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          pix_key?: string | null
+          pix_key_type?: Database["public"]["Enums"]["pix_key_type"] | null
+          signature_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      bank_account_type: "checking" | "savings"
+      document_type: "cpf" | "cnpj"
+      pix_key_type: "cpf" | "cnpj" | "email" | "phone" | "random"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +266,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      bank_account_type: ["checking", "savings"],
+      document_type: ["cpf", "cnpj"],
+      pix_key_type: ["cpf", "cnpj", "email", "phone", "random"],
+    },
   },
 } as const
