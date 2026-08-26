@@ -57,17 +57,26 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: window.location.origin,
         data: { display_name: displayName },
       },
     });
     setLoading(false);
     if (error) {
       toast.error("Não foi possível criar a conta", { description: error.message });
+      return;
+    }
+    // Com confirmação de e-mail ativa, signUp não cria sessão.
+    if (!data.session) {
+      toast.success("Confirme seu e-mail", {
+        description: "Enviamos um link de confirmação para " + email + ".",
+      });
+      setTab("signin");
+      setPassword("");
       return;
     }
     toast.success("Conta criada", { description: "Você já pode acessar o Ofício." });
