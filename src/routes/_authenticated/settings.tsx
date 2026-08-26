@@ -108,6 +108,7 @@ function SettingsPage() {
   });
 
   const [form, setForm] = useState<FormState>(empty);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [signedLogo, setSignedLogo] = useState<string | null>(null);
   const [signedSignature, setSignedSignature] = useState<string | null>(null);
 
