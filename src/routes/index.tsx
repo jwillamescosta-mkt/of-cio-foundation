@@ -3,6 +3,24 @@ import { ArrowRight, FileText, Receipt, Calculator, Wallet } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Ofício — Recibos e contratos para autônomos" },
+      {
+        name: "description",
+        content:
+          "Emita recibos e contratos profissionais, calcule seu valor/hora e controle despesas. Feito para profissionais autônomos e liberais no Brasil.",
+      },
+      { property: "og:title", content: "Ofício — Recibos e contratos para autônomos" },
+      {
+        property: "og:description",
+        content:
+          "Recibos, contratos, precificação e despesas em um só lugar. Sem contador, sem planilha.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
