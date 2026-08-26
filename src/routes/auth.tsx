@@ -9,6 +9,23 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Entrar ou criar conta — Ofício" },
+      {
+        name: "description",
+        content:
+          "Acesse o Ofício para emitir recibos, contratos e controlar despesas do seu trabalho autônomo.",
+      },
+      { property: "og:title", content: "Entrar ou criar conta — Ofício" },
+      {
+        property: "og:description",
+        content: "Acesse o Ofício para emitir recibos, contratos e controlar despesas.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
