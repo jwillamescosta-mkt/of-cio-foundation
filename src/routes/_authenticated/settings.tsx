@@ -172,10 +172,32 @@ function SettingsPage() {
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+    setErrors((e) => (e[key as string] ? { ...e, [key as string]: "" } : e));
+  }
+
+  function validate(f: FormState): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (!f.display_name?.trim()) errs.display_name = "Informe seu nome de exibição.";
+    const doc = onlyDigits(f.document_number ?? "");
+    if (doc) {
+      if (f.document_type === "cnpj" && !isValidCNPJ(doc)) errs.document_number = "CNPJ inválido.";
+      if (f.document_type === "cpf" && !isValidCPF(doc)) errs.document_number = "CPF inválido.";
+    }
+    const zip = onlyDigits(f.address_zip ?? "");
+    if (zip && zip.length !== 8) errs.address_zip = "CEP deve ter 8 dígitos.";
+    const uf = (f.address_state ?? "").trim();
+    if (uf && uf.length !== 2) errs.address_state = "Use a sigla de 2 letras.";
+    return errs;
   }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const errs = validate(form);
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Revise os campos destacados");
+      return;
+    }
     mutation.mutate(form);
   }
 
