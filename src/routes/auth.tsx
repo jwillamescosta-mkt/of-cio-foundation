@@ -9,6 +9,23 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Entrar ou criar conta — Ofício" },
+      {
+        name: "description",
+        content:
+          "Acesse o Ofício para emitir recibos, contratos e controlar despesas do seu trabalho autônomo.",
+      },
+      { property: "og:title", content: "Entrar ou criar conta — Ofício" },
+      {
+        property: "og:description",
+        content: "Acesse o Ofício para emitir recibos, contratos e controlar despesas.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
@@ -40,17 +57,26 @@ function AuthPage() {
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: window.location.origin,
         data: { display_name: displayName },
       },
     });
     setLoading(false);
     if (error) {
       toast.error("Não foi possível criar a conta", { description: error.message });
+      return;
+    }
+    // Com confirmação de e-mail ativa, signUp não cria sessão.
+    if (!data.session) {
+      toast.success("Confirme seu e-mail", {
+        description: "Enviamos um link de confirmação para " + email + ".",
+      });
+      setTab("signin");
+      setPassword("");
       return;
     }
     toast.success("Conta criada", { description: "Você já pode acessar o Ofício." });

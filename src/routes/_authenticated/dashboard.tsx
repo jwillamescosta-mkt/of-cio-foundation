@@ -1,6 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Ofício" },
+      {
+        name: "description",
+        content: "Visão geral de receitas, despesas, recibos emitidos e contratos ativos.",
+      },
+      { property: "og:title", content: "Dashboard — Ofício" },
+      {
+        property: "og:description",
+        content: "Visão geral de receitas, despesas, recibos e contratos.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: DashboardPage,
 });
 

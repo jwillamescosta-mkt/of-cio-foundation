@@ -16,9 +16,34 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Upload, ImageIcon, PenLine } from "lucide-react";
-import { maskCPF, maskCNPJ, maskCEP } from "@/lib/format";
+import {
+  maskCPF,
+  maskCNPJ,
+  maskCEP,
+  onlyDigits,
+  isValidCPF,
+  isValidCNPJ,
+} from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/settings")({
+  head: () => ({
+    meta: [
+      { title: "Configurações — Perfil Profissional | Ofício" },
+      {
+        name: "description",
+        content:
+          "Dados fiscais, endereço, logo, assinatura e dados bancários usados nos seus recibos e contratos.",
+      },
+      { property: "og:title", content: "Configurações — Perfil Profissional | Ofício" },
+      {
+        property: "og:description",
+        content: "Dados que alimentam automaticamente seus recibos e contratos.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: SettingsPage,
 });
 
@@ -83,6 +108,7 @@ function SettingsPage() {
   });
 
   const [form, setForm] = useState<FormState>(empty);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [signedLogo, setSignedLogo] = useState<string | null>(null);
   const [signedSignature, setSignedSignature] = useState<string | null>(null);
 
@@ -147,10 +173,32 @@ function SettingsPage() {
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
+    setErrors((e) => (e[key as string] ? { ...e, [key as string]: "" } : e));
+  }
+
+  function validate(f: FormState): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (!f.display_name?.trim()) errs.display_name = "Informe seu nome de exibição.";
+    const doc = onlyDigits(f.document_number ?? "");
+    if (doc) {
+      if (f.document_type === "cnpj" && !isValidCNPJ(doc)) errs.document_number = "CNPJ inválido.";
+      if (f.document_type === "cpf" && !isValidCPF(doc)) errs.document_number = "CPF inválido.";
+    }
+    const zip = onlyDigits(f.address_zip ?? "");
+    if (zip && zip.length !== 8) errs.address_zip = "CEP deve ter 8 dígitos.";
+    const uf = (f.address_state ?? "").trim();
+    if (uf && uf.length !== 2) errs.address_state = "Use a sigla de 2 letras.";
+    return errs;
   }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const errs = validate(form);
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Revise os campos destacados");
+      return;
+    }
     mutation.mutate(form);
   }
 
@@ -408,11 +456,13 @@ function Field({
   label,
   required,
   className,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   className?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -422,6 +472,7 @@ function Field({
         {required && <span className="ml-1 text-primary">*</span>}
       </Label>
       {children}
+      {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
     </div>
   );
 }

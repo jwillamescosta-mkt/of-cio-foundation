@@ -61,10 +61,10 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => profileInputSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // upsert: garante persistência mesmo se a linha do perfil não existir ainda
     const { data: updated, error } = await supabase
       .from("profiles")
-      .update(data)
-      .eq("id", userId)
+      .upsert({ ...data, id: userId }, { onConflict: "id" })
       .select("*")
       .maybeSingle();
     if (error) throw new Error(error.message);
