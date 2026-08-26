@@ -16,9 +16,34 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Upload, ImageIcon, PenLine } from "lucide-react";
-import { maskCPF, maskCNPJ, maskCEP } from "@/lib/format";
+import {
+  maskCPF,
+  maskCNPJ,
+  maskCEP,
+  onlyDigits,
+  isValidCPF,
+  isValidCNPJ,
+} from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/settings")({
+  head: () => ({
+    meta: [
+      { title: "Configurações — Perfil Profissional | Ofício" },
+      {
+        name: "description",
+        content:
+          "Dados fiscais, endereço, logo, assinatura e dados bancários usados nos seus recibos e contratos.",
+      },
+      { property: "og:title", content: "Configurações — Perfil Profissional | Ofício" },
+      {
+        property: "og:description",
+        content: "Dados que alimentam automaticamente seus recibos e contratos.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: SettingsPage,
 });
 
