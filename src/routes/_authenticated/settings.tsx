@@ -456,11 +456,13 @@ function Field({
   label,
   required,
   className,
+  error,
   children,
 }: {
   label: string;
   required?: boolean;
   className?: string;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -470,6 +472,7 @@ function Field({
         {required && <span className="ml-1 text-primary">*</span>}
       </Label>
       {children}
+      {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
