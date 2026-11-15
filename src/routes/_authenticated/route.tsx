@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedShell() {
+  const caminho = useRouterState({ select: (r) => r.location.pathname });
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -26,7 +27,10 @@ function AuthedShell() {
           <AppHeader />
         </header>
         <main className="pb-barra flex-1 px-4 pt-5 md:p-6">
-          <Outlet />
+          {/* A chave faz cada tela entrar com o movimento padrão ao trocar de rota */}
+          <div key={caminho} className="entrar">
+            <Outlet />
+          </div>
         </main>
       </SidebarInset>
       <BottomNav />

@@ -73,6 +73,35 @@ A marca não usa vermelho nem cores chamativas. No app, status de dinheiro e age
 - O microfone é o maior alvo da barra: quadrado, fundo `--primary`.
 - Desktop: menu lateral com os mesmos destinos.
 
+## Movimento
+
+O movimento existe para explicar o que mudou, nunca para enfeitar. Tudo é feito em CSS e em hooks pequenos (`src/hooks/`), sem biblioteca de animação.
+
+- Tempos e curva da marca: rápido 200 ms, padrão 400 ms, lento 700 ms, curva `cubic-bezier(.2, 0, 0, 1)` (tokens `--mov-*`).
+- Só se anima `transform`, `opacity`, cor e `clip-path`. Nada que mude o tamanho dos blocos.
+- Com "reduzir movimento" ligado no aparelho, tudo aparece no estado final.
+- Sem JavaScript, nada fica escondido.
+
+| Efeito | Classe ou componente | Onde |
+| --- | --- | --- |
+| Entrada ao abrir a tela, em sequência | `.entrar` com `--i` | Todas as telas; cada troca de rota |
+| Título que sobe linha por linha | `.linha-titulo` | Abertura da página pública |
+| Revelação na rolagem | `data-revelar` + `useRevelar()` | Página pública |
+| Frase que acende palavra por palavra | `FraseRolagem` | Página pública |
+| Um dia contado na rolagem, seção presa na tela | `DiaRolagem` | Página pública |
+| Linha de progresso da leitura | `.progresso-rolagem` | Página pública |
+| Exemplo do comando por voz | `DemoComando` | Página pública e folha do microfone |
+| Bloco que responde ao ponteiro | `.bloco-vivo` | Blocos de recurso e de resumo |
+| Botão principal que inverte as cores | `.botao-vivo` | Ação principal |
+| Link que redesenha o traço | `.link-vivo` | Ação secundária |
+| Toque que afunda de leve | `.toque` e botões | Barra inferior e botões |
+| Anel que desliza até o item ativo | `.anel-nav` | Barra inferior |
+| Troca de tema em círculo, a partir do toque | `trocarTema()` | Botão de tema |
+
+O anel continua sendo a assinatura: ele pulsa quando o microfone ouve, anda pela linha do tempo e abre a troca de tema. Fora do foco do teclado, só um anel aparece por vez.
+
+Efeitos de ponteiro ficam dentro de `@media (hover: hover)`, para não "grudar" no toque do celular.
+
 ## Ícones
 
 lucide-react, traço 1,5, herdando a cor do texto. Sem ícones coloridos, 3D ou ilustrações.

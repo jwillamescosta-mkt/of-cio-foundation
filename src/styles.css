@@ -93,6 +93,12 @@
 :root {
   --radius: 0px;
 
+  /* Movimento: mesmos tempos e curva da marca */
+  --mov-rapido: 200ms;
+  --mov-padrao: 400ms;
+  --mov-lento: 700ms;
+  --mov-curva: cubic-bezier(0.2, 0, 0, 1);
+
   --carvao: #1f1d1b;
   --bloco: #2d2a27;
   --linho: #eae4d9;
@@ -239,4 +245,346 @@ html.claro {
   .pb-seguro {
     padding-bottom: env(safe-area-inset-bottom);
   }
+}
+
+/*
+ * Movimento e interação. Regras em docs/design.md, seção Movimento.
+ * Tudo aqui desliga com "reduzir movimento" (regra na camada base).
+ */
+
+/* Entrada ao montar: use com style={{ "--i": n }} para escalonar */
+.entrar {
+  animation: entrar var(--mov-padrao) var(--mov-curva) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* Revelação na rolagem (hooks/use-revelar.ts). Só esconde quando há JavaScript. */
+html.js [data-revelar] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity var(--mov-lento) var(--mov-curva),
+    transform var(--mov-lento) var(--mov-curva);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+html.js [data-revelar].visivel {
+  opacity: 1;
+  transform: none;
+}
+
+/* Bloco que responde ao ponteiro: muda de superfície e ganha um traço na base */
+.bloco-vivo {
+  position: relative;
+  transition: background-color var(--mov-rapido) var(--mov-curva);
+}
+.bloco-vivo::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: var(--foreground);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--mov-padrao) var(--mov-curva);
+}
+.bloco-vivo .bloco-icone {
+  transition:
+    transform var(--mov-padrao) var(--mov-curva),
+    color var(--mov-rapido) var(--mov-curva);
+}
+@media (hover: hover) {
+  .bloco-vivo:hover {
+    background-color: var(--accent);
+  }
+  .bloco-vivo:hover::after {
+    transform: scaleX(1);
+  }
+  .bloco-vivo:hover .bloco-icone {
+    transform: translateY(-3px);
+    color: var(--foreground);
+  }
+}
+
+/* Botão principal: ao passar o ponteiro, o fundo sobe e inverte as cores */
+.botao-vivo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid var(--primary);
+  transition:
+    color var(--mov-padrao) var(--mov-curva),
+    transform var(--mov-rapido) var(--mov-curva);
+}
+.botao-vivo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--background);
+  transform: translateY(101%);
+  transition: transform var(--mov-padrao) var(--mov-curva);
+}
+@media (hover: hover) {
+  .botao-vivo:hover {
+    color: var(--foreground);
+  }
+  .botao-vivo:hover::before {
+    transform: none;
+  }
+}
+.botao-vivo:active {
+  transform: scale(0.97);
+}
+
+/* Link secundário: o traço se redesenha da esquerda */
+.link-vivo {
+  background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
+  padding-bottom: 3px;
+  transition: background-size var(--mov-padrao) var(--mov-curva);
+}
+@media (hover: hover) {
+  .link-vivo:hover {
+    animation: traco var(--mov-lento) var(--mov-curva);
+  }
+}
+@keyframes traco {
+  0% {
+    background-size: 100% 1px;
+    background-position: right bottom;
+  }
+  45% {
+    background-size: 0% 1px;
+    background-position: right bottom;
+  }
+  46% {
+    background-size: 0% 1px;
+    background-position: left bottom;
+  }
+  100% {
+    background-size: 100% 1px;
+    background-position: left bottom;
+  }
+}
+
+/* Anel que pulsa: microfone ouvindo */
+.anel-pulso {
+  position: relative;
+}
+.anel-pulso::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1.5px solid var(--ring);
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+.anel-pulso[data-ouvindo="true"]::after {
+  animation: anel-pulso 1.4s var(--mov-curva) infinite;
+}
+@keyframes anel-pulso {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Barras de voz */
+.onda {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+.onda i {
+  width: 2px;
+  height: 100%;
+  background: var(--muted-foreground);
+  transform: scaleY(0.2);
+  transition: transform var(--mov-padrao) var(--mov-curva);
+}
+.onda[data-ouvindo="true"] i {
+  animation: onda 0.9s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -0.17s);
+}
+@keyframes onda {
+  from {
+    transform: scaleY(0.2);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Cursor de digitação */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: currentColor;
+  animation: cursor 0.9s steps(1) infinite;
+}
+@keyframes cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Cartões do exemplo de comando: aparecem em sequência quando a frase termina */
+.cartao-demo {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--mov-padrao) var(--mov-curva),
+    transform var(--mov-padrao) var(--mov-curva);
+}
+[data-pronto="true"] .cartao-demo {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 140ms);
+}
+
+/* Linha de progresso da leitura, no topo da página pública */
+.progresso-rolagem {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  height: 2px;
+  background: var(--foreground);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+@supports (animation-timeline: scroll()) {
+  .progresso-rolagem {
+    animation: progresso linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes progresso {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Troca de tema: o tema novo abre em círculo a partir do ponto tocado */
+html.trocando-tema::view-transition-old(root),
+html.trocando-tema::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.trocando-tema::view-transition-new(root) {
+  animation: tema-anel var(--mov-lento) var(--mov-curva);
+}
+@keyframes tema-anel {
+  from {
+    clip-path: circle(0 at var(--vt-x) var(--vt-y));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x) var(--vt-y));
+  }
+}
+
+/* Aba ativa do exemplo: traço embaixo */
+.aba-demo {
+  position: relative;
+}
+.aba-demo::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 6px 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--mov-padrao) var(--mov-curva);
+}
+.aba-demo[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Um dia na rolagem: trilho, pontos e momentos */
+.trilho-dia {
+  transform: scaleX(var(--p, 0));
+}
+@media (min-width: 768px) {
+  .trilho-dia {
+    transform: scaleY(var(--p, 0));
+  }
+}
+.ponto-dia {
+  transition:
+    transform var(--mov-padrao) var(--mov-curva),
+    background-color var(--mov-padrao) var(--mov-curva);
+}
+.momento-dia {
+  opacity: 0;
+  transform: translateY(28px);
+  pointer-events: none;
+  transition:
+    opacity var(--mov-padrao) var(--mov-curva),
+    transform var(--mov-lento) var(--mov-curva);
+}
+.momento-dia.passou {
+  transform: translateY(-28px);
+}
+.momento-dia.ativo {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Anel da barra inferior: desliza até o item ativo */
+.anel-nav {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateX(calc(var(--pos, 0) * 100%));
+  transition:
+    transform var(--mov-padrao) var(--mov-curva),
+    opacity var(--mov-rapido) var(--mov-curva);
+}
+
+/* Toque: o item afunda de leve */
+.toque {
+  transition: transform var(--mov-rapido) var(--mov-curva);
+}
+.toque:active {
+  transform: scale(0.94);
+}
+
+/* Título grande: entra linha por linha, de baixo para cima */
+.linha-titulo {
+  display: block;
+  overflow: hidden;
+}
+.linha-titulo > span {
+  display: block;
+  animation: subir var(--mov-lento) var(--mov-curva) both;
+  animation-delay: calc(var(--i, 0) * 110ms);
+}
+@keyframes subir {
+  from {
+    transform: translateY(105%);
+  }
+}
+
+/* Folha do microfone (vaul): sem cantos arredondados */
+.folha-comando {
+  border-radius: 0 !important;
 }
