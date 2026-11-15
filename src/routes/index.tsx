@@ -1,21 +1,21 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowRight, FileText, Receipt, Calculator, Wallet } from "lucide-react";
+import { CalendarDays, Mic, Receipt, Users } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ofício — Recibos e contratos para autônomos" },
+      { title: "Ofício — o app de bolso do prestador de serviço" },
       {
         name: "description",
         content:
-          "Emita recibos e contratos profissionais, calcule seu valor/hora e controle despesas. Feito para profissionais autônomos e liberais no Brasil.",
+          "Agenda, clientes, orçamentos, recibos e cobranças num só lugar. Você fala e o Ofício organiza.",
       },
-      { property: "og:title", content: "Ofício — Recibos e contratos para autônomos" },
+      { property: "og:title", content: "Ofício — o app de bolso do prestador de serviço" },
       {
         property: "og:description",
-        content:
-          "Recibos, contratos, precificação e despesas em um só lugar. Sem contador, sem planilha.",
+        content: "Agenda, clientes, orçamentos, recibos e cobranças num só lugar.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,65 +29,81 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
+const recursos = [
+  {
+    icone: Mic,
+    titulo: "Você fala, ele organiza",
+    texto: "Uma frase vira cliente, visita e cobrança. Você confere antes de salvar.",
+  },
+  {
+    icone: CalendarDays,
+    titulo: "Agenda e rota do dia",
+    texto: "Visitas, orçamentos e manutenções periódicas, na ordem do caminho.",
+  },
+  {
+    icone: Users,
+    titulo: "Clientes em um lugar",
+    texto: "Endereço, telefone e tudo o que já foi feito para cada um.",
+  },
+  {
+    icone: Receipt,
+    titulo: "Recibo e cobrança",
+    texto: "Recibo pronto para o WhatsApp e aviso do que venceu.",
+  },
+];
+
 function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-              <span className="font-mono text-sm font-semibold text-primary-foreground">O</span>
-            </div>
-            <span className="text-sm font-semibold tracking-tight">Ofício</span>
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 md:px-6">
+          <span className="text-lg font-medium tracking-tight">Ofício</span>
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
+            <Link
+              to="/auth"
+              className="inline-flex h-11 items-center px-3 text-base font-medium text-foreground underline decoration-1 underline-offset-4 hover:opacity-80 md:h-9 md:text-sm"
+            >
+              Entrar
+            </Link>
           </div>
-          <Link
-            to="/auth"
-            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Entrar
-          </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-24">
+      <main className="mx-auto max-w-6xl px-4 py-14 md:px-6 md:py-24">
         <div className="max-w-2xl">
-          <p className="mb-4 font-mono text-xs uppercase tracking-widest text-primary">
-            Para profissionais autônomos e liberais
+          <p className="mb-4 text-base text-muted-foreground">
+            Para técnicos e prestadores de serviço
           </p>
-          <h1 className="text-5xl font-semibold leading-tight tracking-tight text-foreground">
-            Recibos, contratos e precificação — sem contador, sem planilha.
+          <h1 className="text-[40px] font-medium leading-[1.05] tracking-[-0.03em] text-foreground text-balance md:text-[64px]">
+            Agenda, clientes e cobranças no bolso.
           </h1>
           <p className="mt-6 text-lg text-muted-foreground">
-            O Ofício substitui o Word, o Excel e a dor de cabeça administrativa.
-            Documentos com cara de empresa, cálculos que fecham, tudo em um lugar.
+            Você termina um serviço, fala o que fez e quanto cobrou. O Ofício anota o cliente, gera o
+            recibo e avisa quando o pagamento atrasar.
           </p>
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-5">
             <Link
               to="/auth"
-              className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="inline-flex h-12 items-center bg-primary px-6 text-base font-medium text-primary-foreground transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              Criar conta grátis <ArrowRight className="h-4 w-4" />
+              Criar conta grátis
             </Link>
             <Link
               to="/auth"
-              className="inline-flex h-11 items-center rounded-md border border-border bg-transparent px-5 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+              className="text-base text-foreground underline decoration-1 underline-offset-4 hover:opacity-80"
             >
               Já tenho conta
             </Link>
           </div>
         </div>
 
-        <div className="mt-20 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { icon: Receipt, title: "Recibos com IA", desc: "Descreve o serviço, a IA formaliza." },
-            { icon: FileText, title: "Contratos", desc: "Templates editáveis por instrução." },
-            { icon: Calculator, title: "Precificação", desc: "Valor/hora baseado em custos reais." },
-            { icon: Wallet, title: "Despesas", desc: "Lançamento e lucro do mês." },
-          ].map((f) => (
-            <div key={f.title} className="rounded-lg border border-border bg-card p-5">
-              <f.icon className="h-5 w-5 text-primary" strokeWidth={1.5} />
-              <h3 className="mt-4 text-sm font-medium text-foreground">{f.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
+        <div className="mt-16 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 md:mt-24">
+          {recursos.map((r) => (
+            <div key={r.titulo} className="bg-card p-5">
+              <r.icone className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+              <h3 className="mt-4 text-[17px] font-medium text-foreground">{r.titulo}</h3>
+              <p className="mt-1 text-base text-muted-foreground">{r.texto}</p>
             </div>
           ))}
         </div>

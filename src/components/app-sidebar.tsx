@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard,
-  Receipt,
-  FileText,
-  Calculator,
+  Home,
+  CalendarDays,
+  Users,
   Wallet,
+  FileText,
+  Receipt,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -25,12 +26,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 
+// Mesmos destinos da barra inferior do celular, mais os que ainda não existem.
 const mainItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, enabled: true },
-  { title: "Recibos", url: "/receipts", icon: Receipt, enabled: false },
-  { title: "Contratos", url: "/contracts", icon: FileText, enabled: false },
-  { title: "Calculadora", url: "/pricing", icon: Calculator, enabled: false },
-  { title: "Despesas", url: "/expenses", icon: Wallet, enabled: false },
+  { title: "Hoje", url: "/dashboard", icon: Home, enabled: true },
+  { title: "Agenda", url: "/agenda", icon: CalendarDays, enabled: true },
+  { title: "Clientes", url: "/clientes", icon: Users, enabled: true },
+  { title: "Dinheiro", url: "/dinheiro", icon: Wallet, enabled: true },
+  { title: "Orçamentos", url: "/orcamentos", icon: FileText, enabled: false },
+  { title: "Recibos", url: "/recibos", icon: Receipt, enabled: false },
 ] as const;
 
 const secondaryItems = [
@@ -57,12 +60,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex h-12 items-center gap-2 px-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary">
-            <span className="font-mono text-xs font-semibold text-primary-foreground">O</span>
-          </div>
-          {!collapsed && (
-            <span className="text-sm font-semibold tracking-tight">Ofício</span>
-          )}
+          <span className="text-base font-medium tracking-tight">
+            {collapsed ? "O" : "Ofício"}
+          </span>
         </div>
       </SidebarHeader>
 
@@ -90,15 +90,13 @@ export function AppSidebar() {
                           <span>{item.title}</span>
                         </Link>
                       ) : (
-                        <div>
+                        <>
                           <item.icon className="h-4 w-4" strokeWidth={1.5} />
                           <span>{item.title}</span>
                           {!collapsed && (
-                            <span className="ml-auto font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                              em breve
-                            </span>
+                            <span className="ml-auto text-xs text-muted-foreground">em breve</span>
                           )}
-                        </div>
+                        </>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
