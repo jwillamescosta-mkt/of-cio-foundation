@@ -5,18 +5,50 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Ofício design system — dark-first, Linear-density, âmbar accent.
- * Semantic tokens only. Never hardcode text-white / bg-black in components.
+ * Sistema de design do Ofício. Regras em docs/design.md.
+ * Base da marca: carvão, bloco, linho, pedra; aço só para o anel (foco e item ativo).
+ * Cantos retos, sem sombra, só Instrument Sans 400/500.
+ * Tema escuro é o padrão; html.claro ativa o tema para sol forte.
  */
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/instrument-sans-400.woff2") format("woff2");
+}
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/instrument-sans-500.woff2") format("woff2");
+}
+
+@theme inline {
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  /* Sem fonte monoespaçada na marca: font-mono vira Instrument Sans com algarismos tabulares. */
+  --font-mono: "Instrument Sans", system-ui, sans-serif;
+
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -36,6 +68,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -55,90 +89,113 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Dark is the default. Light kept as a fallback / future toggle. */
+/* Tema escuro (padrão) */
 :root {
-  --radius: 0.5rem;
+  --radius: 0px;
 
-  /* Base: quase-preto e superfícies em camadas */
-  --background: oklch(0.14 0.005 260);         /* ~#0B0B0F */
-  --foreground: oklch(0.96 0.005 260);
+  --carvao: #1f1d1b;
+  --bloco: #2d2a27;
+  --linho: #eae4d9;
+  --pedra: #a69e92;
+  --aco: #9db2c4;
 
-  --card: oklch(0.17 0.006 260);               /* ~#131317 */
-  --card-foreground: oklch(0.96 0.005 260);
+  --background: var(--carvao);
+  --foreground: var(--linho);
 
-  --popover: oklch(0.17 0.006 260);
-  --popover-foreground: oklch(0.96 0.005 260);
+  --card: var(--bloco);
+  --card-foreground: var(--linho);
+  --popover: var(--bloco);
+  --popover-foreground: var(--linho);
 
-  /* Âmbar/dourado queimado — accent Ofício */
-  --primary: oklch(0.72 0.14 62);              /* ~#D98E3A */
-  --primary-foreground: oklch(0.16 0.01 60);
+  /* Botão principal: linho com texto carvão */
+  --primary: var(--linho);
+  --primary-foreground: var(--carvao);
 
-  --secondary: oklch(0.22 0.006 260);
-  --secondary-foreground: oklch(0.94 0.005 260);
+  --secondary: var(--bloco);
+  --secondary-foreground: var(--linho);
+  --muted: var(--bloco);
+  --muted-foreground: var(--pedra);
+  --accent: #38342f;
+  --accent-foreground: var(--linho);
 
-  --muted: oklch(0.2 0.006 260);
-  --muted-foreground: oklch(0.65 0.01 260);
+  /* Status: só em texto, ícone ou marcador, sempre com a palavra ao lado */
+  --success: #9fbf94;
+  --success-foreground: var(--carvao);
+  --warning: #d9b97a;
+  --warning-foreground: var(--carvao);
+  --destructive: #e0907c;
+  --destructive-foreground: var(--carvao);
 
-  --accent: oklch(0.24 0.008 260);
-  --accent-foreground: oklch(0.96 0.005 260);
+  --border: #3a3632;
+  --input: #4a4540;
+  /* Anel: foco e item ativo. Nunca texto, fundo ou botão. */
+  --ring: var(--aco);
 
-  --destructive: oklch(0.68 0.19 22);          /* ~#F87171 */
-  --destructive-foreground: oklch(0.16 0.01 20);
+  --chart-1: var(--linho);
+  --chart-2: var(--pedra);
+  --chart-3: var(--aco);
+  --chart-4: #9fbf94;
+  --chart-5: #d9b97a;
 
-  --success: oklch(0.78 0.17 148);             /* ~#4ADE80 */
-  --success-foreground: oklch(0.16 0.02 150);
+  --sidebar: var(--carvao);
+  --sidebar-foreground: var(--linho);
+  --sidebar-primary: var(--linho);
+  --sidebar-primary-foreground: var(--carvao);
+  --sidebar-accent: var(--bloco);
+  --sidebar-accent-foreground: var(--linho);
+  --sidebar-border: #3a3632;
+  --sidebar-ring: var(--aco);
 
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.72 0.14 62 / 60%);
-
-  --chart-1: oklch(0.72 0.14 62);
-  --chart-2: oklch(0.78 0.17 148);
-  --chart-3: oklch(0.68 0.19 22);
-  --chart-4: oklch(0.7 0.1 220);
-  --chart-5: oklch(0.6 0.12 300);
-
-  --sidebar: oklch(0.15 0.005 260);
-  --sidebar-foreground: oklch(0.9 0.005 260);
-  --sidebar-primary: oklch(0.72 0.14 62);
-  --sidebar-primary-foreground: oklch(0.16 0.01 60);
-  --sidebar-accent: oklch(0.22 0.006 260);
-  --sidebar-accent-foreground: oklch(0.96 0.005 260);
-  --sidebar-border: oklch(1 0 0 / 6%);
-  --sidebar-ring: oklch(0.72 0.14 62 / 60%);
+  color-scheme: dark;
 }
 
-.dark {
-  /* Same as :root — dark is the default */
-  --background: oklch(0.14 0.005 260);
-  --foreground: oklch(0.96 0.005 260);
-  --card: oklch(0.17 0.006 260);
-  --card-foreground: oklch(0.96 0.005 260);
-  --popover: oklch(0.17 0.006 260);
-  --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.72 0.14 62);
-  --primary-foreground: oklch(0.16 0.01 60);
-  --secondary: oklch(0.22 0.006 260);
-  --secondary-foreground: oklch(0.94 0.005 260);
-  --muted: oklch(0.2 0.006 260);
-  --muted-foreground: oklch(0.65 0.01 260);
-  --accent: oklch(0.24 0.008 260);
-  --accent-foreground: oklch(0.96 0.005 260);
-  --destructive: oklch(0.68 0.19 22);
-  --destructive-foreground: oklch(0.16 0.01 20);
-  --success: oklch(0.78 0.17 148);
-  --success-foreground: oklch(0.16 0.02 150);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
-  --ring: oklch(0.72 0.14 62 / 60%);
-  --sidebar: oklch(0.15 0.005 260);
-  --sidebar-foreground: oklch(0.9 0.005 260);
-  --sidebar-primary: oklch(0.72 0.14 62);
-  --sidebar-primary-foreground: oklch(0.16 0.01 60);
-  --sidebar-accent: oklch(0.22 0.006 260);
-  --sidebar-accent-foreground: oklch(0.96 0.005 260);
-  --sidebar-border: oklch(1 0 0 / 6%);
-  --sidebar-ring: oklch(0.72 0.14 62 / 60%);
+/* Tema claro, para sol forte */
+html.claro {
+  --background: #eae4d9;
+  --foreground: #1f1d1b;
+
+  --card: #f4f0e8;
+  --card-foreground: #1f1d1b;
+  --popover: #f4f0e8;
+  --popover-foreground: #1f1d1b;
+
+  --primary: #1f1d1b;
+  --primary-foreground: #eae4d9;
+
+  --secondary: #f4f0e8;
+  --secondary-foreground: #1f1d1b;
+  --muted: #f4f0e8;
+  --muted-foreground: #6b645a;
+  --accent: #dcd5c8;
+  --accent-foreground: #1f1d1b;
+
+  --success: #365e32;
+  --success-foreground: #eae4d9;
+  --warning: #6b4e18;
+  --warning-foreground: #eae4d9;
+  --destructive: #8e3828;
+  --destructive-foreground: #eae4d9;
+
+  --border: #cfc7b9;
+  --input: #b8afa0;
+  --ring: #4a6680;
+
+  --chart-1: #1f1d1b;
+  --chart-2: #6b645a;
+  --chart-3: #4a6680;
+  --chart-4: #365e32;
+  --chart-5: #6b4e18;
+
+  --sidebar: #eae4d9;
+  --sidebar-foreground: #1f1d1b;
+  --sidebar-primary: #1f1d1b;
+  --sidebar-primary-foreground: #eae4d9;
+  --sidebar-accent: #f4f0e8;
+  --sidebar-accent-foreground: #1f1d1b;
+  --sidebar-border: #cfc7b9;
+  --sidebar-ring: #4a6680;
+
+  color-scheme: light;
 }
 
 @layer base {
@@ -153,12 +210,33 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Números tabulares em qualquer .font-mono ou tabela financeira */
+  /* Algarismos tabulares em valores e números */
   .font-mono,
   [class*="tabular-nums"] {
     font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Espaço para a barra inferior do celular, incluindo a área segura do iPhone */
+  @media (max-width: 767.98px) {
+    .pb-barra {
+      padding-bottom: calc(6rem + env(safe-area-inset-bottom));
+    }
+  }
+  .pb-seguro {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

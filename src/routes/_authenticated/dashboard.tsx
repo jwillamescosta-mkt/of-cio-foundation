@@ -1,65 +1,68 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Ofício" },
+      { title: "Hoje — Ofício" },
       {
         name: "description",
-        content: "Visão geral de receitas, despesas, recibos emitidos e contratos ativos.",
+        content: "Visitas do dia, o que você tem a receber e o que está atrasado.",
       },
-      { property: "og:title", content: "Dashboard — Ofício" },
-      {
-        property: "og:description",
-        content: "Visão geral de receitas, despesas, recibos e contratos.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: DashboardPage,
+  component: HojePage,
 });
 
-const cards = [
-  { label: "Receita do mês", hint: "Recibos emitidos e pagos" },
-  { label: "Despesas do mês", hint: "Custos lançados" },
-  { label: "Recibos emitidos", hint: "Total no período" },
-  { label: "Contratos ativos", hint: "Vigentes hoje" },
+// Os números chegam com os módulos de agenda e cobrança. Por enquanto, o traço indica "ainda sem dados".
+const resumo = [
+  { rotulo: "Visitas hoje", dica: "Agendadas para hoje", status: null },
+  { rotulo: "A receber", dica: "Contas em aberto", status: null },
+  { rotulo: "Atrasado", dica: "Vencidas e não pagas", status: "destructive" as const },
 ];
 
-function DashboardPage() {
+function HojePage() {
+  const hoje = format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR });
+
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Visão geral do seu ofício. Comece configurando seu{" "}
-          <span className="text-foreground">Perfil Profissional</span> em Configurações.
-        </p>
+        <p className="text-sm text-muted-foreground first-letter:uppercase">{hoje}</p>
+        <h2 className="mt-1 text-2xl font-medium tracking-tight text-foreground md:text-[28px]">
+          Seu dia
+        </h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border border-border bg-card p-5">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-              {c.label}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {resumo.map((c) => (
+          <div key={c.rotulo} className="bg-card p-5">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              {c.status === "destructive" && (
+                <span aria-hidden className="h-2 w-2 rounded-full bg-destructive" />
+              )}
+              {c.rotulo}
             </div>
-            <div className="mt-3 font-mono text-2xl font-medium text-foreground tabular-nums">
+            <div className="mt-3 text-[28px] font-medium leading-none tabular-nums text-foreground">
               —
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">{c.hint}</div>
+            <div className="mt-2 text-sm text-muted-foreground">{c.dica}</div>
           </div>
         ))}
       </div>
 
-      <div className="rounded-lg border border-dashed border-border bg-card/50 p-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          Os módulos de <span className="text-foreground">Recibos</span>,{" "}
-          <span className="text-foreground">Contratos</span>,{" "}
-          <span className="text-foreground">Calculadora</span> e{" "}
-          <span className="text-foreground">Despesas</span> chegam em breve.
+      <div className="bg-card p-5">
+        <h3 className="text-[17px] font-medium text-foreground">Primeiro passo</h3>
+        <p className="mt-1 text-base text-muted-foreground">
+          Preencha os dados da sua empresa. Eles entram sozinhos em orçamentos e recibos.
         </p>
+        <Link
+          to="/settings"
+          className="mt-4 inline-flex h-11 items-center bg-primary px-5 text-base font-medium text-primary-foreground transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:h-9 md:px-4 md:text-sm"
+        >
+          Preencher dados da empresa
+        </Link>
       </div>
     </div>
   );

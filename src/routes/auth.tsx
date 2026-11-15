@@ -103,11 +103,8 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-            <span className="font-mono text-sm font-semibold text-primary-foreground">O</span>
-          </div>
-          <Link to="/" className="text-sm font-semibold tracking-tight">
+        <div className="mb-8">
+          <Link to="/" className="text-lg font-medium tracking-tight">
             Ofício
           </Link>
         </div>
