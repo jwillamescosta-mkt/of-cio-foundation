@@ -27,7 +27,9 @@ Módulos do MVP: comando por voz e texto, mini CRM, agenda (visitas técnicas, o
 ## Regras de dados
 
 - Toda tabela de negócio tem `org_id` (a empresa do prestador) e política RLS que restringe aos membros da organização. Nenhuma consulta sem esse filtro.
-- Hoje o banco tem `profiles` (por usuário) e `user_roles`. A primeira migração de negócio cria `organizations` e `members` e passa para a organização os dados da empresa que estão no perfil (razão social, documento, endereço, logo, assinatura, banco, Pix).
+- Empresa: `organizations` (dados da empresa) e `members` (quem faz parte, com papel `owner`, `admin` ou `member`). Todo cadastro novo cria uma empresa e o vínculo de dono. Nas políticas RLS use `is_org_member(org_id)` e `has_org_role(org_id, ...)`; no app, `current_org_id()` devolve a empresa do usuário.
+- Transição: os dados da empresa ainda existem também em `profiles` (razão social, documento, endereço, logo, assinatura, banco, Pix). Leitura e escrita devem passar para `organizations`; só depois disso uma migração remove essas colunas de `profiles`.
+- Teste migrações antes do PR num Postgres local (PGlite), imitando `auth.users`, `auth.uid()` e os papéis do Supabase.
 - Valores monetários em centavos (`integer`). Datas com fuso horário (`timestamptz`). Recorrência por regra RRULE, não por centenas de linhas futuras.
 - Documentos emitidos (recibo, contrato, orçamento aceito) são versionados: nunca sobrescrever depois de emitido.
 
