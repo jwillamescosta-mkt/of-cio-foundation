@@ -14,6 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
+      clients: {
+        Row: {
+          address_city: string | null
+          address_complement: string | null
+          address_district: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          created_at: string
+          document_number: string | null
+          document_type: Database["public"]["Enums"]["document_type"] | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          org_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          created_at?: string
+          document_number?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          org_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_district?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          created_at?: string
+          document_number?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          org_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          role: Database["public"]["Enums"]["org_member_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          role?: Database["public"]["Enums"]["org_member_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["org_member_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          document_number: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_number?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address_city: string | null
@@ -127,6 +258,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_org_ids: { Args: { _user_id: string }; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -134,11 +266,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_org_manager: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user"
       bank_account_type: "checking" | "savings"
       document_type: "cpf" | "cnpj"
+      org_member_role: "owner" | "admin" | "member"
       pix_key_type: "cpf" | "cnpj" | "email" | "phone" | "random"
     }
     CompositeTypes: {
@@ -270,6 +407,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       bank_account_type: ["checking", "savings"],
       document_type: ["cpf", "cnpj"],
+      org_member_role: ["owner", "admin", "member"],
       pix_key_type: ["cpf", "cnpj", "email", "phone", "random"],
     },
   },
