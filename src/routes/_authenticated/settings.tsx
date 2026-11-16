@@ -161,7 +161,7 @@ function SettingsPage() {
   const mutation = useMutation({
     mutationFn: (payload: FormState) => saveProfile({ data: payload as never }),
     onSuccess: () => {
-      toast.success("Perfil salvo");
+      toast.success("Dados salvos");
       qc.invalidateQueries({ queryKey: ["profile"] });
       qc.invalidateQueries({ queryKey: ["profile-header"] });
     },
@@ -216,7 +216,7 @@ function SettingsPage() {
         <div>
           <h2 className="text-2xl font-semibold tracking-tight">Configurações</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Estes dados aparecem em todos os recibos e contratos gerados.
+            Dados da sua empresa. Eles entram sozinhos em orçamentos, recibos e contratos.
           </p>
         </div>
         <Button type="submit" disabled={mutation.isPending}>
@@ -224,6 +224,13 @@ function SettingsPage() {
           Salvar
         </Button>
       </div>
+
+      {data && !data.can_edit_org && (
+        <p className="bg-card p-4 text-sm text-muted-foreground">
+          Você pode mudar seu nome de exibição. Os dados da empresa só podem ser alterados pelo dono
+          ou por um administrador.
+        </p>
+      )}
 
       <Section title="Identidade" description="Nome que aparece no app e sua marca visual.">
         <Field label="Nome de exibição" required>
@@ -425,7 +432,7 @@ function SettingsPage() {
       <div className="flex justify-end">
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Salvar perfil
+          Salvar
         </Button>
       </div>
     </form>

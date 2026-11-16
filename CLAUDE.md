@@ -21,13 +21,17 @@ Módulos do MVP: comando por voz e texto, mini CRM, agenda (visitas técnicas, o
 
 - O projeto está ligado ao Lovable com sincronização na `main`. Trabalhe sempre numa branch `feat/*` e abra pull request. Nunca force push nem reescreva commits já publicados.
 - O Lovable cuida da interface fina, do banco e da publicação. O Claude Code cuida da lógica, das integrações, da IA de voz, de testes e de refatoração.
-- Migrações: crie um arquivo novo em `supabase/migrations/` por mudança; nunca edite uma migração antiga. No Lovable Cloud quem aplica a migração é o Lovable: depois do merge, peça a ele para aplicar e confira no painel Cloud. Código que depende de uma tabela nova só entra na `main` junto com a migração.
+- Migrações: desde 16/11/2026 ficam em `drizzle/migrations/` (as três antigas continuam em `supabase/migrations/`, já aplicadas; não mexa nelas). Para mudar o banco: crie `NNNN_nome.sql` com o próximo número, acrescente a entrada em `meta/_journal.json` e um `meta/NNNN_snapshot.json`. Nunca edite uma migração já aplicada. Escreva a migração para poder rodar duas vezes sem erro e teste antes do PR num Postgres local (PGlite), montando o banco com todas as migrações anteriores.
+- Aplicação: o controle fica em `drizzle.__drizzle_migrations` (hash = sha256 do arquivo, `created_at` = `when` do journal). Migração que só adiciona é aplicada ANTES do merge do código que depende dela, para o app nunca ficar sem a coluna. Antes de criar tabela, confira o que já existe no banco: o Lovable também cria migrações, e as duas versões não podem coexistir.
 - O `bun.lock` aponta para o cache de pacotes privado do Lovable. Fora do Lovable, para testar o build, instale com npm numa cópia do projeto (`npm install --registry=https://registry.npmjs.org` e `npx vite build`) e não envie `package-lock.json` nem mudanças no `bun.lock`.
 
 ## Regras de dados
 
 - Toda tabela de negócio tem `org_id` (a empresa do prestador) e política RLS que restringe aos membros da organização. Nenhuma consulta sem esse filtro.
-- Hoje o banco tem `profiles` (por usuário) e `user_roles`. A primeira migração de negócio cria `organizations` e `members` e passa para a organização os dados da empresa que estão no perfil (razão social, documento, endereço, logo, assinatura, banco, Pix).
+- Empresa: `organizations` (dados da empresa, que vão nos documentos) e `organization_members` (`org_id`, `user_id` apontando para `profiles.id`, papel `owner`, `admin` ou `member`). Todo cadastro novo cria uma empresa com o nome da pessoa e o vínculo de dono. Nas políticas RLS use `org_id in (select get_user_org_ids(auth.uid()))` para membros e `is_org_manager(auth.uid(), org_id)` para dono e admin, sempre com `or has_role(auth.uid(), 'admin')`. No Lovable Cloud, chave estrangeira para `auth.users` só é permitida em `profiles` e `user_roles`.
+- No servidor, a empresa atual do usuário vem de `empresaDoUsuario()` em `src/lib/profile.functions.ts`: a que ele é dono ou, se não for dono de nenhuma, a mais antiga.
+- Transição: as colunas de empresa ainda existem em `profiles`, mas o app lê e grava só em `organizations`. Uma migração futura remove as colunas antigas de `profiles`.
+- Clientes: `clients` (por `org_id`) já existe, criada pelo Lovable.
 - Valores monetários em centavos (`integer`). Datas com fuso horário (`timestamptz`). Recorrência por regra RRULE, não por centenas de linhas futuras.
 - Documentos emitidos (recibo, contrato, orçamento aceito) são versionados: nunca sobrescrever depois de emitido.
 
