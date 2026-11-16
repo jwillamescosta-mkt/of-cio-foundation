@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 const profileInputSchema = z.object({
   display_name: z.string().trim().min(1, "Informe seu nome").max(120),
@@ -43,17 +45,91 @@ const profileInputSchema = z.object({
 
 export type ProfileInput = z.infer<typeof profileInputSchema>;
 
+// Campos que pertencem à empresa (organizations). O resto do formulário é do perfil.
+const camposEmpresa = [
+  "legal_name",
+  "document_type",
+  "document_number",
+  "address_zip",
+  "address_street",
+  "address_number",
+  "address_complement",
+  "address_district",
+  "address_city",
+  "address_state",
+  "logo_url",
+  "signature_url",
+  "bank_name",
+  "bank_agency",
+  "bank_account",
+  "bank_account_type",
+  "pix_key",
+  "pix_key_type",
+] as const;
+
+type Supabase = SupabaseClient<Database>;
+
+/**
+ * Empresa atual do usuário: a que ele é dono; se não for dono de nenhuma,
+ * a mais antiga de que faz parte.
+ */
+async function empresaDoUsuario(supabase: Supabase, userId: string) {
+  const { data, error } = await supabase
+    .from("organization_members")
+    .select("org_id, role, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error("Sua conta ainda não tem empresa. Fale com o suporte.");
+  const dono = data.find((m) => m.role === "owner");
+  const escolhida = dono ?? data[0];
+  return {
+    orgId: escolhida.org_id,
+    podeEditar: escolhida.role === "owner" || escolhida.role === "admin",
+  };
+}
+
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
-      .from("profiles")
+    const [{ data: perfil, error: erroPerfil }, empresa] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("id, email, display_name, avatar_url")
+        .eq("id", userId)
+        .maybeSingle(),
+      empresaDoUsuario(supabase, userId),
+    ]);
+    if (erroPerfil) throw new Error(erroPerfil.message);
+
+    const { data: org, error: erroOrg } = await supabase
+      .from("organizations")
       .select("*")
-      .eq("id", userId)
+      .eq("id", empresa.orgId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
-    return data;
+    if (erroOrg) throw new Error(erroOrg.message);
+
+    const dadosEmpresa = Object.fromEntries(
+      camposEmpresa.map((c) => [c, (org as Record<string, unknown> | null)?.[c] ?? null]),
+    );
+
+    return {
+      id: userId,
+      email: perfil?.email ?? null,
+      display_name: perfil?.display_name ?? null,
+      avatar_url: perfil?.avatar_url ?? null,
+      ...dadosEmpresa,
+      org_id: empresa.orgId,
+      can_edit_org: empresa.podeEditar,
+    } as {
+      id: string;
+      email: string | null;
+      display_name: string | null;
+      avatar_url: string | null;
+      org_id: string;
+      can_edit_org: boolean;
+    } & { [K in (typeof camposEmpresa)[number]]: NonNullable<ProfileInput[K]> | null };
   });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
@@ -61,12 +137,30 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => profileInputSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // upsert: garante persistência mesmo se a linha do perfil não existir ainda
-    const { data: updated, error } = await supabase
+    const empresa = await empresaDoUsuario(supabase, userId);
+
+    // Perfil: só o que é da pessoa
+    const { error: erroPerfil } = await supabase
       .from("profiles")
-      .upsert({ ...data, id: userId }, { onConflict: "id" })
-      .select("*")
+      .upsert(
+        { id: userId, display_name: data.display_name, avatar_url: data.avatar_url ?? null },
+        { onConflict: "id" },
+      );
+    if (erroPerfil) throw new Error(erroPerfil.message);
+
+    // Empresa: dados que vão nos documentos
+    // Quem não é dono nem admin só altera o próprio nome (a tela avisa)
+    if (!empresa.podeEditar) return { ok: true };
+    const dadosEmpresa = Object.fromEntries(camposEmpresa.map((c) => [c, data[c] ?? null]));
+    const nome = (data.legal_name ?? "").trim() || data.display_name;
+    const { data: atualizada, error: erroOrg } = await supabase
+      .from("organizations")
+      .update({ ...dadosEmpresa, name: nome })
+      .eq("id", empresa.orgId)
+      .select("id")
       .maybeSingle();
-    if (error) throw new Error(error.message);
-    return updated;
+    if (erroOrg) throw new Error(erroOrg.message);
+    if (!atualizada) throw new Error("Não foi possível salvar os dados da empresa.");
+
+    return { ok: true };
   });

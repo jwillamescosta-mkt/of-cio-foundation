@@ -8,6 +8,13 @@
       "when": 1794806592725,
       "tag": "0000_create_organizations_members_clients",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794807336919,
+      "tag": "0001_dados_da_empresa",
+      "breakpoints": true
     }
   ]
 }
