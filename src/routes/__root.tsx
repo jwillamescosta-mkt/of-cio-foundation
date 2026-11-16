@@ -81,6 +81,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#1F1D1B" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Ofício" },
       { title: "Ofício — o app de bolso do prestador de serviço" },
       {
         name: "description",
@@ -97,7 +100,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/icone.svg", type: "image/svg+xml" },
+      { rel: "apple-touch-icon", href: "/icone-180.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       {
         rel: "preload",
         href: "/fonts/instrument-sans-400.woff2",

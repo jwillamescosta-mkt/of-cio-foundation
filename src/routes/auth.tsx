@@ -102,7 +102,7 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm">
+      <div className="entrar w-full max-w-sm">
         <div className="mb-8">
           <Link to="/" className="text-lg font-medium tracking-tight">
             Ofício

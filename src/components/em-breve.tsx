@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { LucideIcon } from "lucide-react";
 
 /** Tela de módulo que ainda não foi construído. Diz o que vai existir ali, sem prometer data. */
@@ -14,7 +15,7 @@ export function EmBreve({
 }) {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="space-y-2">
+      <div className="entrar space-y-2">
         <Icone className="h-6 w-6 text-muted-foreground" strokeWidth={1.5} />
         <h2 className="text-2xl font-medium tracking-tight text-foreground md:text-[28px]">
           {titulo}
@@ -24,8 +25,12 @@ export function EmBreve({
       <div className="bg-card p-5">
         <p className="text-sm text-muted-foreground">O que vai ficar aqui</p>
         <ul className="mt-3 space-y-2">
-          {itens.map((item) => (
-            <li key={item} className="flex gap-3 text-base text-foreground">
+          {itens.map((item, n) => (
+            <li
+              key={item}
+              className="entrar flex gap-3 text-base text-foreground"
+              style={{ "--i": n + 2 } as CSSProperties}
+            >
               <span aria-hidden className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground" />
               {item}
             </li>
